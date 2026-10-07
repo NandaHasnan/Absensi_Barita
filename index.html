@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sistem Absensi Online</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+      * {
+        font-family: 'Poppins', sans-serif;
+      }
+
+      .glass-effect {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .gradient-bg {
+        background: linear-gradient(135deg, #119499 0%, #38e9ef 100%);
+      }
+
+      .success-toast {
+        animation: slideIn 0.5s ease-out;
+      }
+
+      @keyframes slideIn {
+        from {
+          transform: translateY(-100px);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+    </style>
+  </head>
+  <body class="w-full gradient-bg flex items-center justify-center p-4">
+    <div class="w-full max-w-md">
+      <div class="text-center mb-8">
+        <div
+          class=""
+        >
+          <!-- <img
+            src="assets/logo.jpeg"
+            alt="Logo sistem absensi dengan ikon jam dan checklist biru pada latar putih"
+            class="w-16 h-16 mx-auto rounded-full lamp"
+          /> -->
+        </div>
+        <h1 class="text-2xl font-bold text-white">SISTEM ABSENSI BARITA</h1>
+        <!-- <p class="text-white/80 text-sm">Terintegrasi dengan Google Sheets</p> -->
+      </div>
+
+      <div class="glass-effect rounded-2xl p-6 shadow-xl">
+        <form
+          id="attendanceForm"
+          class="space-y-4"
+          action="https://script.google.com/macros/s/AKfycbwezp5-keBsuRuHXRayGiKoJKUkrUt0o1pq4V49dqE3kuwjyak2vi17P0b5xsPwWFqz/exec"
+          method="post"
+        >
+          <div>
+            <label class="block text-white text-sm font-medium mb-2" for="nama">
+              Nama Lengkap *
+            </label>
+            <input
+              type="text"
+              id="nama"
+              name="nama"
+              required
+              class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/30 transition-all"
+              placeholder="Masukkan nama lengkap Anda"
+            />
+          </div>
+
+          <div>
+            <label
+              class="block text-white text-sm font-medium mb-2"
+              for="shift"
+            >
+              Shift Kerja *
+            </label>
+            <select
+              id="shift"
+              name="shift"
+              required
+              class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-white/30 transition-all appearance-none"
+            >
+              <option value="" disabled selected>Pilih shift</option>
+              <option
+                value="Shift Pagi (06:00)"
+                class="bg-purple-600 text-white"
+              >
+                Shift Pagi (06:00)
+              </option>
+              <option
+                value="Shift Siang (14:00)"
+                class="bg-purple-600 text-white"
+              >
+                Shift Siang (14:00)
+              </option>
+              <option
+                value="Shift Sore (22:00)"
+                class="bg-purple-600 text-white"
+              >
+                Shift Sore (22:00)
+              </option>
+              <option
+                value="Driver"
+                class="bg-purple-600 text-white"
+              >
+                Driver
+              </option>
+              <option
+                value="Admin"
+                class="bg-purple-600 text-white"
+              >
+                Admin
+              </option>
+              
+            </select>
+          </div>
+
+          <div>
+            <label
+              class="block text-white text-sm font-medium mb-2"
+              for="kehadiran"
+            >
+              Kehadiran *
+            </label>
+            <select
+              id="kehadiran"
+              name="kehadiran"
+              required
+              class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-white/30 transition-all appearance-none"
+            >
+              <option value="" disabled selected>Kehadiran</option>
+              <option value="Hadir" class="bg-purple-600 text-white">
+                Hadir
+              </option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-white text-sm font-medium mb-2">
+              Waktu Absensi
+            </label>
+            <div
+              class="px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white"
+            >
+              <span id="timestamp">-</span>
+            </div>
+            <input type="hidden" id="waktuAbsensi" name="waktuAbsensi" />
+          </div>
+
+          <div>
+            <label
+              class="block text-white text-sm font-medium mb-2"
+              for="catatan"
+            >
+              Catatan
+            </label>
+            <input
+              type="text"
+              id="catatan"
+              name="catatan"
+              class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/30 transition-all"
+              placeholder="Masukkan catatan jika ada"
+            />
+          </div>
+
+          <button
+            type="submit"
+            id="submitBtn"
+            class="w-full bg-white text-blue-500 py-3 px-4 rounded-lg font-semibold hover:bg-gray-100 transition-all transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-white/30"
+          >
+            📋 Absen Sekarang
+          </button>
+        </form>
+      </div>
+
+      <div class="mt-6 glass-effect rounded-2xl p-4">
+        <h3 class="text-white font-semibold mb-2">
+          📊 Rekap Absensi Hari Ini:
+        </h3>
+        <table
+          class="w-full text-white text-sm border border-white/20 rounded-lg overflow-hidden"
+        >
+          <thead class="bg-white/20">
+            <tr>
+              <th class="px-3 py-2">Nama</th>
+              <th class="px-3 py-2">Shift</th>
+              <th class="px-3 py-2">Waktu</th>
+              <th class="px-3 py-2">Status</th>
+              <th class="px-3 py-2">Catatan</th>
+            </tr>
+          </thead>
+          <tbody id="rekapBody" class="divide-y divide-white/10"></tbody>
+        </table>
+      </div>
+
+      <div
+        id="successToast"
+        class="fixed top-4 right-4 glass-effect rounded-lg p-4 text-white success-toast hidden"
+      >
+        <div class="flex items-center">
+          <span class="text-green-400 text-lg mr-2">✅</span>
+          <span>Absensi berhasil disimpan!</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Iframe tersembunyi untuk mengirim data ke Google Apps Script
+         tanpa fetch/CORS error -->
+    <iframe
+      name="googleSheetFrame"
+      id="googleSheetFrame"
+      style="display:none;width:0;height:0;border:0;visibility:hidden;"
+      title="Google Sheets submission frame"
+    ></iframe>
+
+    <script>
+  // ==========================================
+  // KONFIGURASI OUTLET
+  // ==========================================
+
+  const RADIUS_MAKSIMAL = 50;
+
+  // Koordinat outlet
+  const LOKASI_OUTLET = {
+    // lat: -7.6941115,
+    // lng: 111.5347531
+
+    lat: -7.730249,
+    lng: 111.488673
+  };
+
+  const NAMA_OUTLET = "Lokasi";
+
+
+  // ==========================================
+  // ELEMENT HTML
+  // ==========================================
+
+  const form = document.getElementById('attendanceForm');
+  const rekapBody = document.getElementById('rekapBody');
+  const submitBtn = document.getElementById('submitBtn');
+
+
+  // ==========================================
+  // HITUNG JARAK GPS
+  // ==========================================
+
+  function hitungJarak(lat1, lon1, lat2, lon2) {
+
+    const R = 6371e3;
+
+    const phi1 = (lat1 * Math.PI) / 180;
+    const phi2 = (lat2 * Math.PI) / 180;
+
+    const deltaPhi =
+      ((lat2 - lat1) * Math.PI) / 180;
+
+    const deltaLambda =
+      ((lon2 - lon1) * Math.PI) / 180;
+
+    const a =
+      Math.sin(deltaPhi / 2) *
+        Math.sin(deltaPhi / 2) +
+
+      Math.cos(phi1) *
+        Math.cos(phi2) *
+        Math.sin(deltaLambda / 2) *
+        Math.sin(deltaLambda / 2);
+
+    const c =
+      2 *
+      Math.atan2(
+        Math.sqrt(a),
+        Math.sqrt(1 - a)
+      );
+
+    return R * c;
+  }
+
+
+  // ==========================================
+  // CEK STATUS KETERLAMBATAN
+  // ==========================================
+
+  function cekStatus(shift, waktu) {
+
+    const jam = waktu.getHours();
+    const menit = waktu.getMinutes();
+
+
+    if (shift.includes('Pagi')) {
+
+      return jam > 6 ||
+        (jam === 6 && menit > 0)
+        ? 'Terlambat'
+        : 'Tepat Waktu';
+
+    }
+
+
+    if (shift.includes('Siang')) {
+
+      return jam > 14 ||
+        (jam === 14 && menit > 0)
+        ? 'Terlambat'
+        : 'Tepat Waktu';
+
+    }
+
+
+    if (shift.includes('Sore')) {
+
+      return jam > 22 ||
+        (jam === 22 && menit > 0)
+        ? 'Terlambat'
+        : 'Tepat Waktu';
+
+    }
+
+
+    if (shift.includes('Admin')) {
+
+      return jam > 8 ||
+        (jam === 8 && menit > 30)
+        ? 'Terlambat'
+        : 'Tepat Waktu';
+
+    }
+
+
+    return 'Tepat Waktu';
+  }
+
+
+  // ==========================================
+  // SUBMIT ABSENSI
+  // ==========================================
+
+  form.addEventListener('submit', function (e) {
+
+    e.preventDefault();
+
+    submitBtn.disabled = true;
+
+    submitBtn.textContent =
+      '⌛ Memeriksa Lokasi...';
+
+
+    // Cek GPS
+    if (!navigator.geolocation) {
+
+      alert(
+        'Browser Anda tidak mendukung deteksi lokasi (GPS).'
+      );
+
+      resetButton();
+
+      return;
+    }
+
+
+    navigator.geolocation.getCurrentPosition(
+
+      function (position) {
+
+        const userLat =
+          position.coords.latitude;
+
+        const userLng =
+          position.coords.longitude;
+
+
+        // ==========================================
+        // KOORDINAT OUTLET
+        // ==========================================
+
+        const targetLat =
+          LOKASI_OUTLET.lat;
+
+        const targetLng =
+          LOKASI_OUTLET.lng;
+
+
+        // ==========================================
+        // HITUNG JARAK
+        // ==========================================
+
+        const jarak = hitungJarak(
+          userLat,
+          userLng,
+          targetLat,
+          targetLng
+        );
+
+
+        console.log(
+          "Latitude User:",
+          userLat
+        );
+
+        console.log(
+          "Longitude User:",
+          userLng
+        );
+
+        console.log(
+          "Latitude Outlet:",
+          targetLat
+        );
+
+        console.log(
+          "Longitude Outlet:",
+          targetLng
+        );
+
+        console.log(
+          "Jarak ke outlet:",
+          Math.round(jarak),
+          "meter"
+        );
+
+
+        // ==========================================
+        // CEK RADIUS
+        // ==========================================
+
+        if (jarak > RADIUS_MAKSIMAL) {
+
+          alert(
+            `ABSENSI GAGAL!
+
+Anda berada terlalu jauh dari ${NAMA_OUTLET}
+
+Jarak Anda:
+${Math.round(jarak)} meter
+
+Maksimal:
+${RADIUS_MAKSIMAL} meter`
+          );
+
+          resetButton();
+
+          return;
+        }
+
+
+        // ==========================================
+        // LOKASI SESUAI
+        // ==========================================
+
+        prosesAbsensiSukses();
+
+      },
+
+
+      // ==========================================
+      // ERROR GPS
+      // ==========================================
+
+      function (error) {
+
+        switch (error.code) {
+
+          case error.PERMISSION_DENIED:
+
+            alert(
+              'Absensi GAGAL!\n\n' +
+              'Anda harus mengizinkan akses lokasi/GPS.'
+            );
+
+            break;
+
+
+          case error.POSITION_UNAVAILABLE:
+
+            alert(
+              'Absensi GAGAL!\n\n' +
+              'Lokasi tidak tersedia.\n' +
+              'Pastikan GPS aktif.'
+            );
+
+            break;
+
+
+          case error.TIMEOUT:
+
+            alert(
+              'Absensi GAGAL!\n\n' +
+              'Waktu mendapatkan lokasi habis.\n' +
+              'Silakan coba lagi.'
+            );
+
+            break;
+
+
+          default:
+
+            alert(
+              'Absensi GAGAL!\n\n' +
+              error.message
+            );
+        }
+
+
+        resetButton();
+      },
+
+
+      // ==========================================
+      // PENGATURAN GPS
+      // ==========================================
+
+      {
+        enableHighAccuracy: true,
+        timeout: 20000,
+        maximumAge: 0
+      }
+
+    );
+
+  });
+
+
+  // ==========================================
+  // RESET BUTTON
+  // ==========================================
+
+  function resetButton() {
+
+    submitBtn.disabled = false;
+
+    submitBtn.textContent =
+      '📋 Absen Sekarang';
+  }
+
+
+  // ==========================================
+  // ABSENSI BERHASIL
+  // ==========================================
+
+  function prosesAbsensiSukses() {
+
+    const nama =
+      document.getElementById('nama').value;
+
+    const shift =
+      document.getElementById('shift').value;
+
+    const kehadiran =
+      document.getElementById('kehadiran').value;
+
+    const catatan =
+      document.getElementById('catatan').value;
+
+
+    const waktu = new Date();
+
+    const status =
+      cekStatus(shift, waktu);
+
+
+    // ==========================================
+    // SET DATA OUTLET
+    // ==========================================
+
+    // Jika Google Sheet membutuhkan kolom outlet,
+    // tambahkan hidden input secara otomatis.
+
+    let outletInput =
+      document.getElementById('outlet');
+
+
+    if (!outletInput) {
+
+      outletInput =
+        document.createElement('input');
+
+      outletInput.type = 'hidden';
+      outletInput.id = 'outlet';
+      outletInput.name = 'outlet';
+
+      form.appendChild(outletInput);
+    }
+
+
+    outletInput.value = NAMA_OUTLET;
+
+
+    // ==========================================
+    // UPDATE TIMESTAMP
+    // ==========================================
+
+    updateTimestamp();
+
+
+    // ==========================================
+    // TAMPILKAN REKAP
+    // ==========================================
+
+    const row =
+      document.createElement('tr');
+
+
+    row.innerHTML = `
+
+      <td class="px-3 py-2">
+        ${nama}
+      </td>
+
+      <td class="px-3 py-2">
+        ${shift}
+      </td>
+
+      <td class="px-3 py-2">
+        ${waktu.toLocaleTimeString('id-ID')}
+      </td>
+
+      <td class="px-3 py-2 font-bold ${
+        status === 'Terlambat'
+          ? 'text-red-400'
+          : 'text-green-400'
+      }">
+        ${status}
+      </td>
+
+      <td class="px-3 py-2">
+        ${catatan || '-'}
+      </td>
+
+    `;
+
+
+    rekapBody.appendChild(row);
+
+
+    // ==========================================
+    // KIRIM KE GOOGLE APPS SCRIPT
+    // ==========================================
+
+    form.target = 'googleSheetFrame';
+
+
+    // Submit native HTML form
+    form.submit();
+
+
+    // ==========================================
+    // NOTIFIKASI
+    // ==========================================
+
+    const successToast =
+      document.getElementById('successToast');
+
+
+    successToast.classList.remove('hidden');
+
+
+    setTimeout(function () {
+
+      successToast.classList.add('hidden');
+
+    }, 3000);
+
+
+    // ==========================================
+    // RESET FORM
+    // ==========================================
+
+    setTimeout(function () {
+
+      form.reset();
+
+
+      // Kembalikan outlet setelah reset
+      if (outletInput) {
+        outletInput.value = NAMA_OUTLET;
+      }
+
+
+      updateTimestamp();
+
+      resetButton();
+
+    }, 1200);
+
+  }
+
+
+  // ==========================================
+  // UPDATE TIMESTAMP
+  // ==========================================
+
+  function updateTimestamp() {
+
+    const now = new Date();
+
+
+    const options = {
+
+      weekday: 'long',
+
+      year: 'numeric',
+
+      month: 'long',
+
+      day: 'numeric',
+
+      hour: '2-digit',
+
+      minute: '2-digit',
+
+      second: '2-digit'
+
+    };
+
+
+    const waktu =
+      now.toLocaleString(
+        'id-ID',
+        options
+      );
+
+
+    const timestamp =
+      document.getElementById('timestamp');
+
+
+    if (timestamp) {
+
+      timestamp.textContent =
+        waktu;
+
+    }
+
+
+    const hiddenTimestamp =
+      document.getElementById('waktuAbsensi');
+
+
+    if (hiddenTimestamp) {
+
+      hiddenTimestamp.value =
+        waktu;
+
+    }
+
+  }
+
+
+  // ==========================================
+  // JALANKAN TIMESTAMP
+  // ==========================================
+
+  updateTimestamp();
+
+  setInterval(
+    updateTimestamp,
+    1000
+  );
+
+</script>
+  </body>
+</html>
